@@ -37,3 +37,16 @@ do
         VALIDATE $? "Installation of $i"
     fi
 done
+
+for i in $@
+do
+    echo "package to install: $i"
+    dnf list installed $i &>>$LOGFILE
+    if[$? -eq 0]
+    then
+         echo -e "$i is already installed...$y SKIPPING %N"
+    else
+        dnf install $i -y &>>$LOGFILE
+        VALIDATE $? "Installation of $i"
+    fi
+done
