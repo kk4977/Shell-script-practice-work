@@ -1,25 +1,21 @@
 #!/bin/bash
 
-DISK_USAGE=${df -hT | grep /dev/xvda}
+DISK_USAGE=$(df -hT | grep tmpfs)
 
-DISK_THRESHOLD=6
+DISK_THRESHOLD=90  # Change this to your desired threshold percentage
 
-df -hT | grep /dev/xvda | awk -F " " '{print $6}' | cut -d "%" -f1
+MESSAGE=""
 
-while (IFS= read -r line)
-do  
-     USAGE= $(echo $line | awk -F " " '{print $6F}' | cut -d "%" -f1)
-     FOLDER= $(echo $line | awk -F " " '{print $NF}' )
+while IFS= read -r line; do  
+    USAGE=$(echo "$line" | awk '{print $6}' | cut -d '%' -f1)
+    FOLDER=$(echo "$line" | awk '{print $7}')
 
-     if [ $USAGE -ge $DISK_THRESHOLD ]
-     then 
-        "echo $FOLDER is more than $THRESHOLD, Current usage: $USAGE \n"
+    if [ "$USAGE" -ge "$DISK_THRESHOLD" ]; then
+        MESSAGE+="Folder $FOLDER is using more than $DISK_THRESHOLD%. Current usage: $USAGE%\n"
     fi
+done <<< "$DISK_USAGE"
 
-done <<< DISK_USAGE 
-
-echo -e "Message: $MESSAGE"
-
-echo "$MESSAGE" | mail -s "Disk Usage Alert" kadalisivakumar789@gmail.com
-
-# echo "body" | mail -s "subject" to-address
+if [ -n "$MESSAGE" ]; then
+    echo -e "Message:\n$MESSAGE"
+    echo -e "$MESSAGE" | mail -s "Disk Usage Alert" kadalisivakumar789@gmail.com
+fi
