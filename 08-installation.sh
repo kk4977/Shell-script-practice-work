@@ -25,7 +25,7 @@ fi
 echo "Installing Git..."
 dnf install git -y
 
-# Check the exit status of the Git installation
+ 
 if [ $? -eq 0 ]; then
     echo "Installation of Git succeeded"
 else
